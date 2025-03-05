@@ -5,19 +5,20 @@ use std::f32::consts::PI;
 use crate::fft::SimpleFft;
 
 fn main() {
-    const SAMPLES_COUNT: usize = 1000;
-    const WINDOW_SIZE: usize = 16;
-    let mut fft = SimpleFft::new(WINDOW_SIZE);
+    const MAX_FREQ: usize = 1000;
+    const SAMPLE_RATE: usize = MAX_FREQ * 2;
+    const SAMPLE_COUNT: usize = 10 * SAMPLE_RATE;
 
-    let buffer: Vec<f32> = (0..SAMPLES_COUNT)
-        .map(|i| (i as f32) / WINDOW_SIZE as f32)
+    let mut fft = SimpleFft::new(SAMPLE_RATE);
+
+    let buffer: Vec<f32> = (0..SAMPLE_COUNT)
+        .map(|i| (i as f32) / SAMPLE_RATE as f32)
         .map(|s| 2.0 * PI * s)
-        .map(|s| 42.0 + s.sin() + (s * 2.0).sin() / 2.0 + (s * 3.0).sin() / 4.0)
+        .map(|s| 42.0 + s.sin() + (s * 100.0).sin() / 2.0 + (s * 300.0).sin() / 4.0)
         .collect();
 
-    println!("input: {:?}\n", buffer);
     fft.feed_samples(&buffer);
 
-    println!("frequencies: {:?}\n", fft.frequencies());
+    println!("frequencies: {:?}\n", fft.frequencies(MAX_FREQ / 100));
     println!();
 }
