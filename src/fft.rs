@@ -64,15 +64,16 @@ impl SimpleFft {
         }
 
         let mut result = Vec::with_capacity(freq_bins);
-        let src_len = self.freq_buffer.len();
+        let step = (self.freq_buffer.len() as f32) / (freq_bins as f32);
 
-        let scale_factor = (src_len as f32) / (freq_bins as f32);
-
-        // nearest-neighbor scaling
         for i in 0..freq_bins {
-            let src_idx = (i as f32 * scale_factor).round() as usize;
-            let src_idx = src_idx.min(src_len - 1);
-            result.push(self.freq_buffer[src_idx]);
+            let chunk_begin = (i as f32 * step).floor() as usize;
+            let chunk_end = ((i + 1) as f32 * step).floor() as usize;
+
+            let sum: f32 = self.freq_buffer[chunk_begin..chunk_end].iter().sum();
+            let avg = sum / (chunk_end - chunk_begin) as f32;
+
+            result.push(avg);
         }
 
         result
